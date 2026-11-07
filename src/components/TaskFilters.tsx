@@ -1,24 +1,39 @@
 import type { TaskPriority, TaskStatus } from '../types/task'
 
 type TaskFiltersProps = {
+  searchQuery: string
   status: TaskStatus | 'todas'
   priority: TaskPriority | 'todas'
+  onSearchChange: (value: string) => void
   onStatusChange: (status: TaskStatus | 'todas') => void
   onPriorityChange: (priority: TaskPriority | 'todas') => void
 }
 
 export function TaskFilters({
+  searchQuery,
   status,
   priority,
+  onSearchChange,
   onStatusChange,
   onPriorityChange,
 }: TaskFiltersProps) {
   return (
-    <div className="filters-bar" aria-label="Filtros de tareas">
+    <div className="filters-bar" aria-label="Filtros y búsqueda de tareas">
       <span className="filter-title">
         <span aria-hidden="true">☷</span>
         Filtrar por
       </span>
+      <label className="filter-control filter-control-search">
+        <span>Buscar</span>
+        <input
+          type="search"
+          value={searchQuery}
+          onChange={(event) => onSearchChange(event.target.value)}
+          placeholder="Título o descripción"
+          aria-label="Buscar tareas por título o descripción"
+          autoComplete="off"
+        />
+      </label>
       <label className="filter-control">
         <span>Estado</span>
         <select

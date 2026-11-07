@@ -31,6 +31,7 @@ function App() {
   const [feedback, setFeedback] = useState<Feedback | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<TaskStatus | 'todas'>('todas')
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | 'todas'>('todas')
   const [busyTaskIds, setBusyTaskIds] = useState<number[]>([])
@@ -72,14 +73,23 @@ function App() {
     return () => controller.abort()
   }, [])
 
+  const normalizedSearchQuery = searchQuery.trim().toLowerCase()
+  const hasActiveFilters =
+    statusFilter !== 'todas' || priorityFilter !== 'todas' || normalizedSearchQuery !== ''
+
   const visibleTasks = useMemo(
     () =>
-      tasks.filter(
-        (task) =>
-          (statusFilter === 'todas' || task.status === statusFilter) &&
-          (priorityFilter === 'todas' || task.priority === priorityFilter),
-      ),
-    [priorityFilter, statusFilter, tasks],
+      tasks.filter((task) => {
+        const matchesStatus = statusFilter === 'todas' || task.status === statusFilter
+        const matchesPriority = priorityFilter === 'todas' || task.priority === priorityFilter
+        const matchesSearch =
+          normalizedSearchQuery === '' ||
+          task.title.toLowerCase().includes(normalizedSearchQuery) ||
+          (task.description ?? '').toLowerCase().includes(normalizedSearchQuery)
+
+        return matchesStatus && matchesPriority && matchesSearch
+      }),
+    [normalizedSearchQuery, priorityFilter, statusFilter, tasks],
   )
 
   const stats = useMemo(
@@ -241,18 +251,19 @@ function App() {
       return (
         <div className="state-panel">
           <span className="empty-icon" aria-hidden="true">⌕</span>
-          <strong>No encontramos tareas con esos filtros</strong>
-          <span>Prueba con otra combinación de estado y prioridad.</span>
+          <strong>No encontramos tareas que coincidan</strong>
+          <span>Prueba con otra búsqueda o ajusta los filtros de estado y prioridad.</span>
           {hasActiveFilters && (
             <button
               type="button"
               className="text-button"
               onClick={() => {
+                setSearchQuery('')
                 setStatusFilter('todas')
                 setPriorityFilter('todas')
               }}
             >
-              Limpiar filtros
+              Limpiar búsqueda y filtros
             </button>
           )}
         </div>
@@ -377,12 +388,14 @@ function App() {
               </div>
 
               <TaskFilters
+                searchQuery={searchQuery}
                 status={statusFilter}
                 priority={priorityFilter}
+                onSearchChange={setSearchQuery}
                 onStatusChange={setStatusFilter}
                 onPriorityChange={setPriorityFilter}
               />
-              {renderTaskList(visibleTasks, true)}
+              {renderTaskList(visibleTasks, hasActiveFilters)}
             </section>
           )}
 

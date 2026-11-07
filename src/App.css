@@ -493,6 +493,7 @@ h2 {
 }
 
 .filter-control select,
+.filter-control input,
 .status-select-label select {
   min-height: 32px;
   padding: 0 25px 0 10px;
@@ -501,6 +502,30 @@ h2 {
   color: #62677a;
   background: #fff;
   font-size: 10px;
+}
+
+.filter-control input {
+  padding-right: 10px;
+}
+
+.filter-control-search {
+  flex: 1 1 220px;
+  min-width: 180px;
+}
+
+.filter-control-search input {
+  width: 100%;
+}
+
+.filter-control input::placeholder {
+  color: #b3b6c3;
+}
+
+.filter-control input:focus,
+.filter-control select:focus {
+  outline: 2px solid rgb(98 86 220 / 22%);
+  outline-offset: 1px;
+  border-color: #c9c4f5;
 }
 
 .task-grid {
@@ -1110,7 +1135,13 @@ h2 {
     font-size: 8px;
   }
 
-  .filter-control select {
+  .filter-control-search {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .filter-control select,
+  .filter-control input {
     width: 100%;
     min-width: 0;
     padding-left: 7px;
